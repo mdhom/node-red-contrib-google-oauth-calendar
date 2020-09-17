@@ -1,0 +1,124 @@
+<!--- CONFIG NODE --->
+<script type="text/javascript">
+    RED.nodes.registerType('googleCredentials',{
+        category: 'config',
+        defaults: {
+			name:   { value: "", 			required: true },
+		},
+		credentials: {
+			clientId:       { type:"text" },
+			clientSecret:   { type:"text" },
+			accessToken:    { type:"text" },
+		},
+        label: function() { return this.name; },
+		paletteLabel: "Google Api Credentials"
+    });
+</script>
+
+<script type="text/html" data-template-name="googleCredentials">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-clientId"><i class="fa fa-tag"></i> clientId</label>
+        <input type="password" id="node-config-input-clientId" placeholder="clientId" />
+	</div>
+    <div class="form-row">
+        <label for="node-input-clientSecret"><i class="fa fa-tag"></i> clientSecret</label>
+        <input type="password" id="node-config-input-clientSecret" placeholder="clientSecret" />
+    </div>
+    <div class="form-row">
+        <button>Authorize</button>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="googleCredentials">
+    <p>
+		Stores config data for ms-cognitive-services. You can find your ApiKey in the resource within your 
+		<a href="https://portal.azure.com" title="Azure Portal" target="_blank">Azure Portal</a>. Browse to your resource
+		and open "Resource Management > Keys and Endpoint".
+	</p>
+</script>
+
+
+<!--- TEXT TO SPEECH NODE --->
+<script type="text/javascript">
+    RED.nodes.registerType('googleApi',{
+        category: 'Google API',
+        color: '#a6bbcf',
+        defaults: {
+            name: 			    { value: "" },
+			googleCredentials: 	{ value: "", type: "googleCredentials" },
+        },
+        inputs: 1,
+        outputs: 1,
+        label: function() { return this.name || "Google API"; },
+		paletteLabel: "Google API"
+    });
+</script>
+
+<script type="text/html" data-template-name="googleApi">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-googleCredentials"><i class="fa fa-tag"></i> googleCredentials</label>
+        <input type="text" id="node-input-googleCredentials" placeholder="googleCredentials" />
+    </div>
+</script>
+
+<script type="text/html" data-help-name="googleApi">
+	
+	<h3>Input message</h3>
+	<dl class="message-properties">
+
+		<dt class="optional">textToSynthesize <span class="property-type">string</span> </dt>
+		<dd> The text which should by synthesized. Can be enhanced with additional infos, 
+			 like adding short breaks within your text <code>&lt;break time="600ms"/&gt;</code>. 
+			 See <a href="https://speech.microsoft.com/audiocontentcreation" target=_blank>here</a> for more.</dd>
+
+		<dt class="optional">voice <span class="property-type">enum</span> </dt>
+		<dd> 	The voice with which the text should be spoken. Select one from 
+				<a href="https://docs.microsoft.com/de-de/azure/cognitive-services/speech-service/language-support#standard-voices" target=_blank>here</a>. 
+		</dd>
+
+		<dt class="optional">expression <span class="property-type">enum</span> </dt>
+		<dd> The expression of the voice. Select one from
+			<ul>
+				<li>General</li>
+				<li>Cheerful</li>
+				<li>CustomerService</li>
+				<li>Empathy</li>
+				<li>Newscast</li>
+				<li>Chat</li>
+			</ul>
+		</dd>
+
+		<dt class="optional">rate <span class="property-type">number</span> </dt>
+		<dd> The speaking rate. Allowed range from -100% up to 200%. </dd>
+
+		<dt class="optional">pitch <span class="property-type">number</span> </dt>
+		<dd> The pitch of the voice. Allowed range from -50% to 50%. </dd>
+
+		<dt class="optional">storeAndReuse <span class="property-type">boolean</span> </dt>
+		<dd> If true, on each request the node checks wether the same request (regarding, text, voice, rate, pitch, ...) has 
+			 already been downloaded and reuses the file if so. </dd>
+	</dl>
+	
+	<h3>Output message</h3>
+	<dl class="message-properties">
+		<dt>payload <span class="property-type">buffer</span> </dt>
+		<dd> The audio file in a buffer, can e.g. be used for writing into file. </dd>
+
+		<dt>tempFilename <span class="property-type">string</span></dt>
+		<dd> The name of the temporary file, where the audio is stored in data folder. </dd>
+	</dl>
+
+	<h3>References</h3>
+	<ul>
+		<li><a href="https://github.com/mdhom/node-red-contrib-ms-cognitive-services" target=_blank>GitHub</a> - the nodes github repository</li>
+	</ul>
+</script>
