@@ -141,11 +141,12 @@
 </script>
 
 
-<!--- TEXT TO SPEECH NODE --->
+<!--- LIST UPCOMING EVENTS NODE --->
 <script type="text/javascript">
-    RED.nodes.registerType('googleApi',{
+    RED.nodes.registerType('listUpcomingEvents',{
         category: 'Google API',
         color: '#a6bbcf',
+        icon: "listUpcomingEventsIcon.png",
         defaults: {
             name: 			    { value: "" },
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
@@ -153,12 +154,12 @@
         },
         inputs: 1,
         outputs: 1,
-        label: function() { return this.name || "Get upcoming calendar entries"; },
-		paletteLabel: "Get upcoming calendar entries"
+        label: function() { return this.name || "List upcoming events"; },
+		paletteLabel: "List upcoming events"
     });
 </script>
 
-<script type="text/html" data-template-name="googleApi">
+<script type="text/html" data-template-name="listUpcomingEvents">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
@@ -175,7 +176,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="googleApi">
+<script type="text/html" data-help-name="listUpcomingEvents">
 	
 	<h3>Input message</h3>
 	<dl class="message-properties">

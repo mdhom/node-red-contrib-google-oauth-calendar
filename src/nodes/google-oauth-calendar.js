@@ -15,7 +15,7 @@ module.exports = function(RED) {
 		}
 	});
     
-    function googleApi(config) {
+    function listUpcomingEventsNode(config) {
         RED.nodes.createNode(this,config);
         var googleCredentials = RED.nodes.getNode(config.googleCredentials);
         var node = this;
@@ -60,7 +60,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("googleApi",googleApi);
+    RED.nodes.registerType("listUpcomingEvents",listUpcomingEventsNode);
 
     /**
      * Lists the next 10 events on the user's primary calendar.
