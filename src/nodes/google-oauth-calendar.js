@@ -21,42 +21,18 @@ module.exports = function(RED) {
         var node = this;
 
         node.on('input', function(msg) {
-            try
-            {
-                if (googleCredentials !== null && googleCredentials !== undefined)
-                {
-                    if (googleCredentials.credentials.tokenData !== null && googleCredentials.credentials.tokenData !== undefined)
-                    {
-                        const oAuth2Client = new google.auth.OAuth2(
-                            googleCredentials.credentials.clientId, 
-                            googleCredentials.credentials.clientSecret, 
-                            googleCredentials.credentials.redirectUri);
-                
-                        oAuth2Client.setCredentials(JSON.parse(googleCredentials.credentials.tokenData));
-
-                        listUpcomingEvents(oAuth2Client, node, config.numEvents, function(err, result) {
-                            if (err) {
-                                node.status({fill:"red",shape:"dot",text:"Error: " + err});
-                            } else {
-                                msg.calendarConfig = googleCredentials.name;
-                                msg.payload = result.data.items;
-                                node.send(msg);
-                                node.status({fill:"green",shape:"dot",text:"Fetched " + result.data.items.length + " events"});
-                            }
-                        });
+            prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
+                listUpcomingEvents(oAuth2Client, node, config.numEvents, function(err, result) {
+                    if (err) {
+                        node.status({fill:"red",shape:"dot",text:"Error: " + err});
+                    } else {
+                        msg.googleCredentialsName = googleCredentials.name;
+                        msg.payload = result.data.items;
+                        node.send(msg);
+                        node.status({fill:"green",shape:"dot",text:"Fetched " + result.data.items.length + " events"});
                     }
-                    else 
-                    {
-                        node.status({fill:"red",shape:"dot",text:"Error: No AccessToken"});
-                    }
-                }
-                else
-                {
-                    node.status({fill:"red",shape:"dot",text:"Error: No Credentials"});
-                }
-            } catch (err) {
-                node.status({fill:"red",shape:"dot",text:"Exception: " + err});
-            }
+                });
+            });
         });
     }
 
@@ -78,11 +54,41 @@ module.exports = function(RED) {
                 callback(err, res);
             });
     }
-  
 
+    // API WRAPPERS
+
+    function prepareApiRequest(msg, node, googleCredentials, callback) {
+        try
+        {
+            if (googleCredentials !== null && googleCredentials !== undefined)
+            {
+                if (googleCredentials.credentials.tokenData !== null && googleCredentials.credentials.tokenData !== undefined)
+                {
+                    const oAuth2Client = new google.auth.OAuth2(
+                        googleCredentials.credentials.clientId, 
+                        googleCredentials.credentials.clientSecret, 
+                        googleCredentials.credentials.redirectUri);
+            
+                    oAuth2Client.setCredentials(JSON.parse(googleCredentials.credentials.tokenData));
+
+                    callback(oAuth2Client, node);
+                }
+                else 
+                {
+                    node.status({fill:"red",shape:"dot",text:"Error: No AccessToken"});
+                }
+            }
+            else
+            {
+                node.status({fill:"red",shape:"dot",text:"Error: No Credentials"});
+            }
+        } catch (err) {
+            node.status({fill:"red",shape:"dot",text:"Exception: " + err});
+        }
+    }
 
     RED.httpAdmin.get('/google-credentials/authUrl/:clientSecret/:clientId/:redirectUri', function(req, res){
-               
+                
         const client_secret = decodeURIComponent(req.params.clientSecret);
         const client_id = decodeURIComponent(req.params.clientId);
         const redirect_uri = decodeURIComponent(req.params.redirectUri);
@@ -106,14 +112,14 @@ module.exports = function(RED) {
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
 
         oAuth2Client.getToken(decodeURIComponent(req.params.code), (err, token) => {
-          if (err){
+            if (err){
             res.send(500);
             node.warn(err);
-          } else {
+            } else {
             oAuth2Client.setCredentials(token);
 
             res.end(JSON.stringify(token));
-          }
+            }
         });
     });
 }
