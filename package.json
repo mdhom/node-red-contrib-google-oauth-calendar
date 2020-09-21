@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-google-oauth-calendar",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Nodes to interact with Google Calendar API",
     "author": "Max Dhom",
     "node-red": {
@@ -12,12 +12,12 @@
         "googleapis": "^59.0.0"
     },
     "repository": {
-      "type": "git",
-      "url": "git+https://github.com/mdhom/node-red-contrib-google-oauth-calendar"
+        "type": "git",
+        "url": "git+https://github.com/mdhom/node-red-contrib-google-oauth-calendar"
     },
     "keywords": [
-      "node-red", 
-      "google",
-      "calendar"
+        "node-red",
+        "google",
+        "calendar"
     ]
 }
