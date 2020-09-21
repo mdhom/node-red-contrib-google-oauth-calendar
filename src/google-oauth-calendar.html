@@ -151,6 +151,7 @@
             name: 			    { value: "" },
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
             numEvents:		    { value: "10" },
+            timespan:           { value: 24 },
             refreshInterval:    { value: 0 }
         },
         inputs: 1,
@@ -162,6 +163,11 @@
                 type:"num",
                 types:["num"],
                 typeField: "#node-input-refreshInterval-type"
+            });
+            $("#node-input-timespan").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-timespan-type"
             });
             $("#node-input-numEvents").typedInput({
                 type:"num",
@@ -187,6 +193,12 @@
         <label for="node-input-numEvents"><i class="fa fa-bars"></i> Num events</label>
         <input type="text" id="node-input-numEvents">
         <input type="hidden" id="node-input-numEvents-type">
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-timespan"><i class="fa fa-clock-o"></i> Maximum timespan in hours</label>
+        <input type="text" id="node-input-timespan">
+        <input type="hidden" id="node-input-timespan-type">
     </div>
 	
     <div class="form-row">

@@ -33,7 +33,7 @@ module.exports = function(RED) {
 
         function handleMsg(msg) {
             prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
-                listUpcomingEvents(oAuth2Client, node, config.numEvents, function(err, result) {
+                listUpcomingEvents(oAuth2Client, node, config.numEvents, config.timespan > 0 ? config.timespan : undefined, function(err, result) {
                     if (err) {
                         node.status({fill:"red",shape:"dot",text:"Error: " + err});
                     } else {
@@ -53,11 +53,12 @@ module.exports = function(RED) {
      * Lists the next 10 events on the user's primary calendar.
      * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
      */
-    function listUpcomingEvents(auth, node, numEvents, callback) {
+    function listUpcomingEvents(auth, node, numEvents, timespan, callback) {
         const calendar = google.calendar({version: 'v3', auth});
             calendar.events.list({
             calendarId: 'primary',
             timeMin: (new Date()).toISOString(),
+            timeMax: timespan !== undefined ? new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString() : undefined,
             maxResults: numEvents,
             singleEvents: true,
             orderBy: 'startTime',
