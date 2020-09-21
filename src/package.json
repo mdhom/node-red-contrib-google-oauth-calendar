@@ -5,7 +5,7 @@
     "author": "Max Dhom",
     "node-red": {
         "nodes": {
-            "generic-lamp": "nodes/google-oauth-calendar.js"
+            "google-oauth-calendar": "nodes/google-oauth-calendar.js"
         }
     },
     "dependencies": {
