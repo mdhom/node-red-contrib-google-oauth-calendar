@@ -16,8 +16,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: cd src | npm ci
-      - run: cd src | npm test
+      - run: cd src
+      - run: npm ci
+      - run: npm test
 
   publish-npm:
     needs: build
@@ -28,8 +29,9 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: cd src | npm ci
-      - run: cd src | npm publish
+      - run: cd src
+      - run: npm ci
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
@@ -42,7 +44,8 @@ jobs:
         with:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
-      - run: cd src | npm ci
-      - run: cd src | npm publish
+      - run: cd src
+      - run: npm ci
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
