@@ -134,9 +134,9 @@
 
 <script type="text/html" data-help-name="googleCredentials">
     <p>
-		Stores config data for ms-cognitive-services. You can find your ApiKey in the resource within your 
-		<a href="https://portal.azure.com" title="Azure Portal" target="_blank">Azure Portal</a>. Browse to your resource
-		and open "Resource Management > Keys and Endpoint".
+        Stores access data for your Google API. 
+        Go to <a href="https://console.developers.google.com/" target=_blank title="Google Developer Console">Google Developer Console</a>
+        and create OAuth-Client data (id and key). Important: select "TV and other" client type.
 	</p>
 </script>
 
@@ -198,53 +198,20 @@
 
 <script type="text/html" data-help-name="listUpcomingEvents">
 	
-	<h3>Input message</h3>
-	<dl class="message-properties">
-
-		<dt class="optional">textToSynthesize <span class="property-type">string</span> </dt>
-		<dd> The text which should by synthesized. Can be enhanced with additional infos, 
-			 like adding short breaks within your text <code>&lt;break time="600ms"/&gt;</code>. 
-			 See <a href="https://speech.microsoft.com/audiocontentcreation" target=_blank>here</a> for more.</dd>
-
-		<dt class="optional">voice <span class="property-type">enum</span> </dt>
-		<dd> 	The voice with which the text should be spoken. Select one from 
-				<a href="https://docs.microsoft.com/de-de/azure/cognitive-services/speech-service/language-support#standard-voices" target=_blank>here</a>. 
-		</dd>
-
-		<dt class="optional">expression <span class="property-type">enum</span> </dt>
-		<dd> The expression of the voice. Select one from
-			<ul>
-				<li>General</li>
-				<li>Cheerful</li>
-				<li>CustomerService</li>
-				<li>Empathy</li>
-				<li>Newscast</li>
-				<li>Chat</li>
-			</ul>
-		</dd>
-
-		<dt class="optional">rate <span class="property-type">number</span> </dt>
-		<dd> The speaking rate. Allowed range from -100% up to 200%. </dd>
-
-		<dt class="optional">pitch <span class="property-type">number</span> </dt>
-		<dd> The pitch of the voice. Allowed range from -50% to 50%. </dd>
-
-		<dt class="optional">storeAndReuse <span class="property-type">boolean</span> </dt>
-		<dd> If true, on each request the node checks wether the same request (regarding, text, voice, rate, pitch, ...) has 
-			 already been downloaded and reuses the file if so. </dd>
-	</dl>
-	
 	<h3>Output message</h3>
 	<dl class="message-properties">
-		<dt>payload <span class="property-type">buffer</span> </dt>
-		<dd> The audio file in a buffer, can e.g. be used for writing into file. </dd>
+		<dt>googleCredentialsName <span class="property-type">string</span> </dt>
+		<dd> The name of the config node used for authorization in this request. </dd>
 
-		<dt>tempFilename <span class="property-type">string</span></dt>
-		<dd> The name of the temporary file, where the audio is stored in data folder. </dd>
+		<dt>payload <span class="property-type">array</span></dt>
+		<dd> The list of upcoming events. </dd>
 	</dl>
 
 	<h3>References</h3>
 	<ul>
-		<li><a href="https://github.com/mdhom/node-red-contrib-ms-cognitive-services" target=_blank>GitHub</a> - the nodes github repository</li>
+        <li><a href="https://github.com/mdhom/node-red-contrib-ms-cognitive-services" target=_blank>GitHub</a> - the nodes github repository</li>
+        <li><a href="https://developers.google.com/calendar" target=_blank>Google Calendar API</a></li>
+        <li><a href="https://googleapis.dev/nodejs/googleapis/latest/calendar/index.html" target=_blank>Google Calendar API Node.js Reference</a></li>
+        <li><a href="https://developers.google.com/calendar/quickstart/nodejs" target=_blank>Google Calendar API Node.js Quickstart</a></li>
 	</ul>
 </script>
