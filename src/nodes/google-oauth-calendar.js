@@ -20,7 +20,18 @@ module.exports = function(RED) {
         var googleCredentials = RED.nodes.getNode(config.googleCredentials);
         var node = this;
 
+        if (config.refreshInterval > 0)
+        {
+            setInterval(function () { 
+                handleMsg({});
+            }, config.refreshInterval * 1000);    
+        }
+
         node.on('input', function(msg) {
+            handleMsg(msg);
+        });
+
+        function handleMsg(msg) {
             prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
                 listUpcomingEvents(oAuth2Client, node, config.numEvents, function(err, result) {
                     if (err) {
@@ -33,7 +44,7 @@ module.exports = function(RED) {
                     }
                 });
             });
-        });
+        }
     }
 
     RED.nodes.registerType("listUpcomingEvents",listUpcomingEventsNode);

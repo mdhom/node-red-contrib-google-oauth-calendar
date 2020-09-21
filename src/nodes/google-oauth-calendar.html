@@ -151,11 +151,24 @@
             name: 			    { value: "" },
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
             numEvents:		    { value: "10" },
+            refreshInterval:    { value: 0 }
         },
         inputs: 1,
         outputs: 1,
         label: function() { return this.name || "List upcoming events"; },
-		paletteLabel: "List upcoming events"
+        paletteLabel: "List upcoming events",
+        oneditprepare: function(){
+            $("#node-input-refreshInterval").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-refreshInterval-type"
+            });
+            $("#node-input-numEvents").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-numEvents-type"
+            });
+        }
     });
 </script>
 
@@ -172,7 +185,14 @@
 	
     <div class="form-row">
         <label for="node-input-numEvents"><i class="fa fa-bars"></i> Num events</label>
-        <input type="text" id="node-input-numEvents" placeholder="numEvents" />
+        <input type="text" id="node-input-numEvents">
+        <input type="hidden" id="node-input-numEvents-type">
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-refreshInterval"><i class="fa fa-clock-o"></i> Refresh interval in seconds</label>
+        <input type="text" id="node-input-refreshInterval">
+        <input type="hidden" id="node-input-refreshInterval-type">
     </div>
 </script>
 
