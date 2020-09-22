@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-google-oauth-calendar",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Nodes to interact with Google Calendar API",
     "author": "Max Dhom",
     "node-red": {

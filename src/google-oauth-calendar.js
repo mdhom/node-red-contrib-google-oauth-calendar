@@ -22,13 +22,17 @@ module.exports = function(RED) {
 
         if (config.refreshInterval > 0)
         {
-            setInterval(function () { 
+            node.context().intervalTimer = setInterval(function () { 
                 handleMsg({});
             }, config.refreshInterval * 1000);    
         }
 
         node.on('input', function(msg) {
             handleMsg(msg);
+        });
+
+        node.on('close', function() {
+            clearInterval(node.context().intervalTimer);
         });
 
         function handleMsg(msg) {
