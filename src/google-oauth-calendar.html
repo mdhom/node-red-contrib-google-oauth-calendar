@@ -239,3 +239,104 @@
         <li><a href="https://developers.google.com/calendar/quickstart/nodejs" target=_blank>Google Calendar API Node.js Quickstart</a></li>
 	</ul>
 </script>
+
+
+
+<!--- LIST EVENTS ON DAYS NODE --->
+<script type="text/javascript">
+    RED.nodes.registerType('listEventsOnDays',{
+        category: 'Google API',
+        color: '#a6bbcf',
+        icon: "listUpcomingEventsIcon.png",
+        defaults: {
+            name: 			     { value: "" },
+            googleCredentials: 	 { value: "", type: "googleCredentials" },
+            timezoneOffsetHours: { value: 0},
+            daysOffsetStart:     { value: 0 },
+            daysOffsetEnd:       { value: 0 },
+            refreshInterval:     { value: 0 }
+        },
+        inputs: 1,
+        outputs: 1,
+        label: function() { return this.name || "List events on days"; },
+        paletteLabel: "List events on days",
+        oneditprepare: function(){
+            $("#node-input-refreshInterval").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-refreshInterval-type"
+            });
+            $("#node-input-timezoneOffsetHours").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-timezoneOffsetHours-type"
+            });
+            $("#node-input-daysOffsetStart").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-daysOffsetStart-type"
+            });
+            $("#node-input-daysOffsetEnd").typedInput({
+                type:"num",
+                types:["num"],
+                typeField: "#node-input-daysOffsetEnd-type"
+            });
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="listEventsOnDays">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-googleCredentials"><i class="fa fa-key"></i> Credentials</label>
+        <input type="text" id="node-input-googleCredentials" placeholder="googleCredentials" />
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-timezoneOffsetHours"><i class="fa fa-globe"></i> Timezone offset in hours</label>
+        <input type="text" id="node-input-timezoneOffsetHours">
+        <input type="hidden" id="node-input-timezoneOffsetHours-type">
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-daysOffsetStart"><i class="fa fa-calendar"></i> Days offset start</label>
+        <input type="text" id="node-input-daysOffsetStart">
+        <input type="hidden" id="node-input-daysOffsetStart-type">
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-daysOffsetEnd"><i class="fa fa-calendar"></i> Days offset end</label>
+        <input type="text" id="node-input-daysOffsetEnd">
+        <input type="hidden" id="node-input-daysOffsetEnd-type">
+    </div>
+	
+    <div class="form-row">
+        <label for="node-input-refreshInterval"><i class="fa fa-clock-o"></i> Refresh interval in seconds</label>
+        <input type="text" id="node-input-refreshInterval">
+        <input type="hidden" id="node-input-refreshInterval-type">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="listEventsOnDays">
+	
+	<h3>Output message</h3>
+	<dl class="message-properties">
+		<dt>googleCredentialsName <span class="property-type">string</span> </dt>
+		<dd> The name of the config node used for authorization in this request. </dd>
+
+		<dt>payload <span class="property-type">array</span></dt>
+		<dd> The list of upcoming events. </dd>
+	</dl>
+
+	<h3>References</h3>
+	<ul>
+        <li><a href="https://github.com/mdhom/node-red-contrib-ms-cognitive-services" target=_blank>GitHub</a> - the nodes github repository</li>
+        <li><a href="https://developers.google.com/calendar" target=_blank>Google Calendar API</a></li>
+        <li><a href="https://googleapis.dev/nodejs/googleapis/latest/calendar/index.html" target=_blank>Google Calendar API Node.js Reference</a></li>
+        <li><a href="https://developers.google.com/calendar/quickstart/nodejs" target=_blank>Google Calendar API Node.js Quickstart</a></li>
+	</ul>
+</script>

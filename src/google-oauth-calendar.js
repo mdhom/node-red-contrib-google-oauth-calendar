@@ -59,20 +59,90 @@ module.exports = function(RED) {
 
     RED.nodes.registerType("listUpcomingEvents",listUpcomingEventsNode);
 
+    
+    
+    function listEventsOnDaysNode(config) {
+        RED.nodes.createNode(this,config);
+        var googleCredentials = RED.nodes.getNode(config.googleCredentials);
+        var node = this;
+
+        if (config.refreshInterval > 0)
+        {
+            node.context().intervalTimer = setInterval(function () { 
+                handleMsg({});
+            }, config.refreshInterval * 1000);    
+        }
+
+        node.on('input', function(msg) {
+            handleMsg(msg);
+        });
+
+        node.on('close', function() {
+            clearInterval(node.context().intervalTimer);
+        });
+
+        function handleMsg(msg) {
+            prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
+                listEventsOnDays(
+                    oAuth2Client, 
+                    node, 
+                    config.timezoneOffsetHours,
+                    config.daysOffsetStart, 
+                    config.daysOffsetEnd, 
+                    function(err, result) {
+                    if (err) {
+                        node.status({fill:"red",shape:"dot",text:"Error: " + err});
+                    } else {
+                        msg.googleCredentialsName = googleCredentials.name;
+                        msg.payload = result.data.items;
+                        node.send(msg);
+                        node.status({fill:"green",shape:"dot",text:"Fetched " + result.data.items.length + " events"});
+                    }
+                });
+            });
+        }
+    }
+
+    RED.nodes.registerType("listEventsOnDays",listEventsOnDaysNode);
+
     /**
      * Lists the next 10 events on the user's primary calendar.
      * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
      */
     function listUpcomingEvents(auth, node, numEvents, timespan, timespanDays, callback) {
+        const timeMin = (new Date()).toISOString();
+
+        var timeMax = undefined;
+        if (timespanDays !== undefined) {
+            var todayMorning = new Date();
+            todayMorning.setHours(0,0,0,0);
+            timeMax = new Date(todayMorning.getTime() + timespanDays * 24 * 60 * 60 * 1000).toISOString();
+        } else if (timespan !== undefined) {
+            timeMax = new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString();
+        }
+
+        listEvents(auth, node, numEvents, timeMin, timeMax, callback);
+    }
+
+    function listEventsOnDays(auth, node, timezoneOffsetHours, daysOffsetStart, daysOffsetEnd, callback) {
         var todayMorning = new Date();
         todayMorning.setHours(0,0,0,0);
 
-        var timeMax = timespanDays !== undefined ? new Date(todayMorning.getTime() + timespanDays * 24 * 60 * 60 * 1000).toISOString() : 
-                         (timespan !== undefined ? new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString() : undefined);
+        const millisecondsPerDay = 24 * 60 * 60 * 1000;
+        const offsetTimezone = -timezoneOffsetHours * 60 * 60 * 1000;
+        const offsetStart = daysOffsetStart * millisecondsPerDay;
+        const timeMin = new Date(todayMorning.getTime() - offsetStart + offsetTimezone).toISOString();
+        const offsetEnd = daysOffsetEnd * millisecondsPerDay;
+        const timeMax = new Date(todayMorning.getTime() + millisecondsPerDay + offsetEnd - 1 + offsetTimezone).toISOString();
+
+        listEvents(auth, node, undefined, timeMin, timeMax, callback);
+    }
+
+    function listEvents(auth, node, numEvents, timeMin, timeMax, callback) {
         const calendar = google.calendar({version: 'v3', auth});
             calendar.events.list({
             calendarId: 'primary',
-            timeMin: (new Date()).toISOString(),
+            timeMin: timeMin,
             timeMax: timeMax,
             maxResults: numEvents,
             singleEvents: true,
