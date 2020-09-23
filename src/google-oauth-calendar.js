@@ -106,8 +106,7 @@ module.exports = function(RED) {
     RED.nodes.registerType("listEventsOnDays",listEventsOnDaysNode);
 
     /**
-     * Lists the next 10 events on the user's primary calendar.
-     * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+     *                     NODE METHODS
      */
     function listUpcomingEvents(auth, node, numEvents, timespan, timespanDays, callback) {
         const timeMin = (new Date()).toISOString();
@@ -138,6 +137,9 @@ module.exports = function(RED) {
         listEvents(auth, node, undefined, timeMin, timeMax, callback);
     }
 
+    /**
+     *                     API METHODS
+     */
     function listEvents(auth, node, numEvents, timeMin, timeMax, callback) {
         const calendar = google.calendar({version: 'v3', auth});
             calendar.events.list({
@@ -151,8 +153,6 @@ module.exports = function(RED) {
                 callback(err, res);
             });
     }
-
-    // API WRAPPERS
 
     function prepareApiRequest(msg, node, googleCredentials, callback) {
         try
