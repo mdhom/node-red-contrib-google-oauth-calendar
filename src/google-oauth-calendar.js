@@ -37,7 +37,13 @@ module.exports = function(RED) {
 
         function handleMsg(msg) {
             prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
-                listUpcomingEvents(oAuth2Client, node, config.numEvents, config.timespan > 0 ? config.timespan : undefined, function(err, result) {
+                listUpcomingEvents(
+                    oAuth2Client, 
+                    node, 
+                    config.numEvents, 
+                    config.timespan > 0 ? config.timespan : undefined, 
+                    config.timespanDays > 0 ? config.timespanDays : undefined, 
+                    function(err, result) {
                     if (err) {
                         node.status({fill:"red",shape:"dot",text:"Error: " + err});
                     } else {
@@ -57,12 +63,17 @@ module.exports = function(RED) {
      * Lists the next 10 events on the user's primary calendar.
      * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
      */
-    function listUpcomingEvents(auth, node, numEvents, timespan, callback) {
+    function listUpcomingEvents(auth, node, numEvents, timespan, timespanDays, callback) {
+        var todayMorning = new Date();
+        todayMorning.setHours(0,0,0,0);
+
+        var timeMax = timespanDays !== undefined ? new Date(todayMorning.getTime() + timespanDays * 24 * 60 * 60 * 1000).toISOString() : 
+                         (timespan !== undefined ? new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString() : undefined);
         const calendar = google.calendar({version: 'v3', auth});
             calendar.events.list({
             calendarId: 'primary',
             timeMin: (new Date()).toISOString(),
-            timeMax: timespan !== undefined ? new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString() : undefined,
+            timeMax: timeMax,
             maxResults: numEvents,
             singleEvents: true,
             orderBy: 'startTime',
