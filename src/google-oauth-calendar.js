@@ -81,11 +81,28 @@ module.exports = function(RED) {
             clearInterval(node.context().intervalTimer);
         });
 
+        function getCalendarIds(){
+            try
+            {
+                if (config.calendarIds === undefined || config.calendarIds === null || config.calendarIds.length == 0)
+                {
+                    return [ "primary" ];
+                }
+    
+                return config.calendarIds.split("|");
+            }
+            catch(err)
+            {
+                node.err("getCalendarIds: " + err);
+            }
+        }
+
         function handleMsg(msg) {
             prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
                 listEventsOnDays(
                     oAuth2Client, 
                     node, 
+                    getCalendarIds(),
                     config.timezoneOffsetHours,
                     config.daysOffsetStart, 
                     config.daysOffsetEnd, 
@@ -94,9 +111,9 @@ module.exports = function(RED) {
                         node.status({fill:"red",shape:"dot",text:"Error: " + err});
                     } else {
                         msg.googleCredentialsName = googleCredentials.name;
-                        msg.payload = result.data.items;
+                        msg.payload = result;
                         node.send(msg);
-                        node.status({fill:"green",shape:"dot",text:"Fetched " + result.data.items.length + " events"});
+                        node.status({fill:"green",shape:"dot",text:"Fetched " + result.length + " events"});
                     }
                 });
             });
@@ -120,10 +137,10 @@ module.exports = function(RED) {
             timeMax = new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString();
         }
 
-        listEvents(auth, node, numEvents, timeMin, timeMax, callback);
+        listEvents(auth, node, undefined, numEvents, timeMin, timeMax, callback);
     }
 
-    function listEventsOnDays(auth, node, timezoneOffsetHours, daysOffsetStart, daysOffsetEnd, callback) {
+    function listEventsOnDays(auth, node, calendarIds, timezoneOffsetHours, daysOffsetStart, daysOffsetEnd, callback) {
         var todayMorning = new Date();
         todayMorning.setHours(0,0,0,0);
 
@@ -134,24 +151,56 @@ module.exports = function(RED) {
         const offsetEnd = daysOffsetEnd * millisecondsPerDay;
         const timeMax = new Date(todayMorning.getTime() + millisecondsPerDay + offsetEnd - 1 + offsetTimezone).toISOString();
 
-        listEvents(auth, node, undefined, timeMin, timeMax, callback);
+        listEvents(auth, node, calendarIds, undefined, timeMin, timeMax, callback);
     }
 
     /**
      *                     API METHODS
      */
-    function listEvents(auth, node, numEvents, timeMin, timeMax, callback) {
-        const calendar = google.calendar({version: 'v3', auth});
-            calendar.events.list({
-            calendarId: 'primary',
-            timeMin: timeMin,
-            timeMax: timeMax,
-            maxResults: numEvents,
-            singleEvents: true,
-            orderBy: 'startTime',
-            }, (err, res) => {
-                callback(err, res);
+    function listEvents(auth, node, calendarIds, numEvents, timeMin, timeMax, callback) {
+        try
+        {
+            const calendar = google.calendar({version: 'v3', auth});
+            const promises = [];
+            calendarIds.forEach(calendarId => {
+                promises.push(new Promise(resolve => {
+                    calendar.events.list({
+                        calendarId: calendarId,
+                        timeMin: timeMin,
+                        timeMax: timeMax,
+                        maxResults: numEvents,
+                        singleEvents: true,
+                        orderBy: 'startTime',
+                        }, (err, res) => {
+                            resolve(res.data.items);
+                    });
+                }));
             });
+
+            Promise.all(promises).then(result => {
+                try {
+                    var allItems = [].concat.apply([], result);
+                    callback("", allItems);
+                } catch(ex) {
+                    node.error("Result Exception: " + ex);
+                }
+            });
+        } catch(err) {
+            node.error("listEvents: Exception: " + err);
+        }
+    }
+
+    function listCalendars(auth, node, callback) {
+        const calendar = google.calendar({version: 'v3', auth});
+        calendar.calendarList.list({ }, (err, res) => {
+            if (res.data !== undefined) {
+                const calenders = res.data.items;
+                calenders.forEach(c => {
+                    node.error(c.summary + " | " + c.id);
+                });
+            }
+            callback(err, res);
+        });
     }
 
     function prepareApiRequest(msg, node, googleCredentials, callback) {

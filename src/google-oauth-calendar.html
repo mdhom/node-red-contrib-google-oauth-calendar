@@ -251,6 +251,7 @@
         defaults: {
             name: 			     { value: "" },
             googleCredentials: 	 { value: "", type: "googleCredentials" },
+            calendarIds:         { value: "" },
             timezoneOffsetHours: { value: 0},
             daysOffsetStart:     { value: 0 },
             daysOffsetEnd:       { value: 0 },
@@ -294,6 +295,11 @@
     <div class="form-row">
         <label for="node-input-googleCredentials"><i class="fa fa-key"></i> Credentials</label>
         <input type="text" id="node-input-googleCredentials" placeholder="googleCredentials" />
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-calendarIds"><i class="fa fa-tag"></i> Calendar IDs</label>
+        <input type="text" id="node-input-calendarIds" placeholder="Calendar IDs" />
     </div>
 	
     <div class="form-row">
