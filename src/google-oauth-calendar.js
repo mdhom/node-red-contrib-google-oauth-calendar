@@ -66,6 +66,13 @@ module.exports = function(RED) {
         var googleCredentials = RED.nodes.getNode(config.googleCredentials);
         var node = this;
 
+        try {
+            var calenderIds = config.calendarIds == "" ? [] : JSON.parse(config.calendarIds);
+        } catch (err) {
+            node.error("Fetching calenderIds: " + err);
+            var calenderIds = [];
+        }
+        
         if (config.refreshInterval > 0)
         {
             node.context().intervalTimer = setInterval(function () { 
@@ -81,28 +88,12 @@ module.exports = function(RED) {
             clearInterval(node.context().intervalTimer);
         });
 
-        function getCalendarIds(){
-            try
-            {
-                if (config.calendarIds === undefined || config.calendarIds === null || config.calendarIds.length == 0)
-                {
-                    return [ "primary" ];
-                }
-    
-                return config.calendarIds.split("|");
-            }
-            catch(err)
-            {
-                node.err("getCalendarIds: " + err);
-            }
-        }
-
         function handleMsg(msg) {
             prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
                 listEventsOnDays(
                     oAuth2Client, 
                     node, 
-                    getCalendarIds(),
+                    calenderIds,
                     config.timezoneOffsetHours,
                     config.daysOffsetStart, 
                     config.daysOffsetEnd, 
