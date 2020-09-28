@@ -152,7 +152,6 @@
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
             numEvents:		    { value: "10" },
             timespan:           { value: 24 },
-            timespanDays:       { value: 0 },
             refreshInterval:    { value: 0 }
         },
         inputs: 1,
@@ -169,11 +168,6 @@
                 type:"num",
                 types:["num"],
                 typeField: "#node-input-timespan-type"
-            });
-            $("#node-input-timespanDays").typedInput({
-                type:"num",
-                types:["num"],
-                typeField: "#node-input-timespanDays-type"
             });
             $("#node-input-numEvents").typedInput({
                 type:"num",
@@ -208,12 +202,6 @@
     </div>
 	
     <div class="form-row">
-        <label for="node-input-timespanDays"><i class="fa fa-clock-o"></i> Maximum timespan in days</label>
-        <input type="text" id="node-input-timespanDays">
-        <input type="hidden" id="node-input-timespanDays-type">
-    </div>
-	
-    <div class="form-row">
         <label for="node-input-refreshInterval"><i class="fa fa-clock-o"></i> Refresh interval in seconds</label>
         <input type="text" id="node-input-refreshInterval">
         <input type="hidden" id="node-input-refreshInterval-type">
@@ -221,7 +209,22 @@
 </script>
 
 <script type="text/html" data-help-name="listUpcomingEvents">
-	
+    <h3>Parameters</h3>
+    <ul style="list-style-type:none;">
+        <li>
+            <b>Num events</b><br />
+            This is the maximum number of events that will be listed.
+        </li>
+        <li>
+            <b>Maximum timespan in hours</b><br />
+            This is the maximum timespan, within which events will be listed. If you e.g. put 24, you will only get events which start within the next 24 hours.
+        </li>
+        <li>
+            <b>Refresh interval</b><br />
+            The node has an inbuilt refresh mechanism which cyclically pulls the upcoming events. Interval is customizable, if set to zero, no pulling will happen.
+        </li>
+    </ul>
+
 	<h3>Output message</h3>
 	<dl class="message-properties">
 		<dt>googleCredentialsName <span class="property-type">string</span> </dt>
@@ -233,7 +236,7 @@
 
 	<h3>References</h3>
 	<ul>
-        <li><a href="https://github.com/mdhom/node-red-contrib-ms-cognitive-services" target=_blank>GitHub</a> - the nodes github repository</li>
+        <li><a href="https://github.com/mdhom/node-red-contrib-google-oauth-calendar" target=_blank>GitHub</a> - the nodes github repository</li>
         <li><a href="https://developers.google.com/calendar" target=_blank>Google Calendar API</a></li>
         <li><a href="https://googleapis.dev/nodejs/googleapis/latest/calendar/index.html" target=_blank>Google Calendar API Node.js Reference</a></li>
         <li><a href="https://developers.google.com/calendar/quickstart/nodejs" target=_blank>Google Calendar API Node.js Quickstart</a></li>

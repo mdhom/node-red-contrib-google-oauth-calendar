@@ -42,7 +42,6 @@ module.exports = function(RED) {
                     node, 
                     config.numEvents, 
                     config.timespan > 0 ? config.timespan : undefined, 
-                    config.timespanDays > 0 ? config.timespanDays : undefined, 
                     function(err, result) {
                     if (err) {
                         node.status({fill:"red",shape:"dot",text:"Error: " + err});
@@ -116,15 +115,11 @@ module.exports = function(RED) {
     /**
      *                     NODE METHODS
      */
-    function listUpcomingEvents(auth, node, numEvents, timespan, timespanDays, callback) {
+    function listUpcomingEvents(auth, node, numEvents, timespan, callback) {
         const timeMin = (new Date()).toISOString();
 
         var timeMax = undefined;
-        if (timespanDays !== undefined) {
-            var todayMorning = new Date();
-            todayMorning.setHours(0,0,0,0);
-            timeMax = new Date(todayMorning.getTime() + timespanDays * 24 * 60 * 60 * 1000).toISOString();
-        } else if (timespan !== undefined) {
+        if (timespan !== undefined) {
             timeMax = new Date(Date.now() + timespan * 60 * 60 * 1000).toISOString();
         }
 
