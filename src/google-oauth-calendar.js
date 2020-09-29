@@ -158,6 +158,9 @@ module.exports = function(RED) {
                         singleEvents: true,
                         orderBy: 'startTime',
                         }, (err, res) => {
+                            res.data.items.forEach(item => {
+                                item.calendarId = calendarId;
+                            });
                             resolve(res.data.items);
                     });
                 }));
