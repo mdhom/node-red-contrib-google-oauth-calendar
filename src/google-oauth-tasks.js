@@ -1,6 +1,6 @@
 module.exports = function(RED) {
-    const {google} = require('googleapis');
     const utils = require("../lib/utils.js");
+    const api = require("../lib/apiTasks.js");
         
     function listTasksNode(config) {
         try {
@@ -17,7 +17,7 @@ module.exports = function(RED) {
                 try {
                     utils.setRequesting(node);
                     googleCredentials.authenticate(node, function(oAuth2Client) {
-                        listTaskLists(oAuth2Client, node, config.numTasks, function(taskLists) {
+                        api.listTaskLists(oAuth2Client, node, config.numTasks, function(taskLists) {
                             msg = googleCredentials.createGoogleResult("tasklist", taskLists);
                             node.send(msg);
                             node.status({fill:"green", shape:"dot", text:`Fetched ${taskLists.length} task lists`});
@@ -33,17 +33,4 @@ module.exports = function(RED) {
     }
     RED.nodes.registerType("list-tasks",listTasksNode);
     
-    function listTaskLists(auth, node, numResults, callback) {
-        const options = {
-            maxResults: numResults,
-        };
-        google.tasks({version: 'v1', auth}).tasklists.list(options, (err, res) => {
-            if (err) {
-                utils.handleApiError(node, err);
-                return null;
-            } else {
-                callback(res.data.items);
-            }
-        });
-    }
 }

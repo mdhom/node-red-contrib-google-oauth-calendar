@@ -1,6 +1,6 @@
 module.exports = function(RED) {
-    const {google} = require('googleapis');
     const utils = require("../lib/utils.js");
+    const api = require("../lib/apiCalendar.js");
         
     function listUpcomingEventsNode(config) {
         try {
@@ -32,7 +32,7 @@ module.exports = function(RED) {
                             timeMax = new Date(Date.now() + config.timespan * 60 * 60 * 1000).toISOString();
                         }
 
-                        listEvents(oAuth2Client, node, calendarIds, config.numEvents, timeMin, timeMax, function(err, result) {
+                        api.listEvents(oAuth2Client, node, calendarIds, config.numEvents, timeMin, timeMax, function(err, result) {
                             node.status({fill:"yellow",shape:"dot",text:"Result"});
                             if (err) {
                                 utils.handleApiError(node, err);
@@ -83,7 +83,7 @@ module.exports = function(RED) {
                 const offsetEnd = config.daysOffsetEnd * millisecondsPerDay;
                 const timeMax = new Date(todayMorning.getTime() + millisecondsPerDay + offsetEnd - 1 + offsetTimezone).toISOString();
 
-                listEvents(oAuth2Client, node, calendarIds, undefined, timeMin, timeMax, function(err, result) {
+                api.listEvents(oAuth2Client, node, calendarIds, undefined, timeMin, timeMax, function(err, result) {
                     if (err) {
                         utils.handleError(node, err);
                     } else {
@@ -96,59 +96,4 @@ module.exports = function(RED) {
         }
     }
     RED.nodes.registerType("listEventsOnDays",listEventsOnDaysNode);
-
-    
-    function listEvents(auth, node, calendarIds, numEvents, timeMin, timeMax, callback) {
-        try
-        {
-            const calendar = google.calendar({version: 'v3', auth});
-            const promises = [];
-            calendarIds.forEach(calendarId => {
-                promises.push(new Promise(resolve => {
-                    const options = {
-                        calendarId: calendarId,
-                        timeMin: timeMin,
-                        timeMax: timeMax,
-                        maxResults: numEvents,
-                        singleEvents: true,
-                        orderBy: 'startTime',
-                    };
-                    calendar.events.list(options, (err, res) => {
-                        if (err) {
-                            utils.handleApiError(node, err);
-                        } else {
-                            res.data.items.forEach(item => {
-                                item.calendarId = calendarId;
-                            });
-                            resolve(res.data.items);
-                        }
-                    });
-                }));
-            });
-
-            Promise.all(promises).then(result => {
-                try {
-                    var allItems = [].concat.apply([], result);
-                    callback("", allItems);
-                } catch(err) {
-                    utils.handleError(node, 'Result exception: '+err);
-                }
-            });
-        } catch(err) {
-            utils.handleError(node, 'Exception: '+err);
-        }
-    }
-
-    function listCalendars(auth, node, callback) {
-        const calendar = google.calendar({version: 'v3', auth});
-        calendar.calendarList.list({ }, (err, res) => {
-            if (res.data !== undefined) {
-                const calenders = res.data.items;
-                calenders.forEach(c => {
-                    node.error(c.summary + " | " + c.id);
-                });
-            }
-            callback(err, res);
-        });
-    }
 }
