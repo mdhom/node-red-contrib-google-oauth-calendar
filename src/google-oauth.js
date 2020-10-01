@@ -1,5 +1,6 @@
 module.exports = function(RED) {
     const {google} = require('googleapis');
+    const utils = require("../lib/utils.js");
 
     function googleCredentials(config) {
         RED.nodes.createNode(this,config);
@@ -24,7 +25,7 @@ module.exports = function(RED) {
                     node.status({fill:"red",shape:"dot",text:"Error: No AccessToken"});
                 }
             } catch (err) {
-                node.status({fill:"red",shape:"dot",text:"Exception: " + err});
+                utils.handleError(node, "Authenticate: " + err);
             }
         }
 

@@ -7,6 +7,7 @@
         defaults: {
             name: 			    { value: "" },
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
+            calendarIds:         { value: "" },
             numEvents:		    { value: "10" },
             timespan:           { value: 24 },
             refreshInterval:    { value: 0 }
@@ -31,6 +32,8 @@
                 types:["num"],
                 typeField: "#node-input-numEvents-type"
             });
+
+            RegisterCalendarIdSelectionUI();
         }
     });
 </script>
@@ -44,6 +47,26 @@
     <div class="form-row">
         <label for="node-input-googleCredentials"><i class="fa fa-key"></i> Credentials</label>
         <input type="text" id="node-input-googleCredentials" placeholder="googleCredentials" />
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-calendarIds"><i class="fa fa-calendar"></i> Calendar IDs</label>
+        <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
+            <div style="position: absolute; left: 0px; right: 40px;">
+                <input type="text" id="addCalendarIdText" placeholder="Add calendar id" style="width:100%" />
+            </div>
+            <button class="red-ui-button" id="addCalendarIdButton" style="position: absolute; right: 0px; top: 0px;"><i class="fa fa-plus"></i></button>
+        </div>
+        
+        <input type="hidden" id="node-input-calendarIds" placeholder="Calendar IDs" />
+    </div>
+    <div class="form-row">
+        <label></label>
+        <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
+            <ul id="calendarIdsList" style="list-style-type: none; margin:0px; padding:0px; width:322.3px;">
+    
+            </ul>
+        </div>
     </div>
 	
     <div class="form-row">
@@ -145,70 +168,7 @@
                 typeField: "#node-input-daysOffsetEnd-type"
             });
 
-
-            $("#addCalendarIdButton").click(function() {
-                try {
-                    var calendarId = $("#addCalendarIdText").val();
-                    var list = getCurrentCalendarListObject();
-                    if (!list.includes(calendarId))
-                    {
-                        list.push(calendarId);
-                        storeCalendarListObject(list);
-                    }
-                    $("#addCalendarIdText").val("");
-
-                    refreshList();
-                } catch(ex) {
-                    alert (ex);
-                }
-            });
-            
-            refreshList();
-
-            function getCurrentCalendarListObject() {
-                try {
-                    return JSON.parse($("#node-input-calendarIds").val());
-                } catch(err) {
-                    return [];
-                }
-            }
-
-            function storeCalendarListObject(list) {
-                $("#node-input-calendarIds").val(JSON.stringify(list));
-            }
-
-            function refreshList() {
-                $("#calendarIdsList").empty();
-                var calendarIds = getCurrentCalendarListObject();
-                calendarIds.forEach(cId => appendCalendarId(cId));
-            }
-
-            function appendCalendarId(id) {
-                function uuidv4() {
-                    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                        return v.toString(16);
-                    });
-                }
-
-                const buttonId = uuidv4();
-                $("#calendarIdsList").append(
-                    "<li style=\"display:inline-block; padding:3px; width:100%; margin:0 0 3px 0; border:1px solid lightgray; border-radius:4px;\">" +
-                        "<button id=\"" + buttonId + "\" data-calendarId=\""+id+"\" >X</button> "+id.substr(0, Math.min(30, id.length))+
-                    "</li>");
-
-                // register delete-button-callback
-                $("#" + buttonId).click(function(){   
-                    var buttonDOM = $(this);
-                    var calendarId = buttonDOM.attr("data-calendarId");
-                    var hiddenInput = $("#node-input-calendarIds");
-
-                    var list = getCurrentCalendarListObject();
-                    list = list.filter(id => id != calendarId);
-                    storeCalendarListObject(list);
-                    refreshList();
-                });
-            }
+            RegisterCalendarIdSelectionUI();
         }
     });
 </script>
@@ -287,4 +247,77 @@
         <li><a href="https://googleapis.dev/nodejs/googleapis/latest/calendar/index.html" target=_blank>Google Calendar API Node.js Reference</a></li>
         <li><a href="https://developers.google.com/calendar/quickstart/nodejs" target=_blank>Google Calendar API Node.js Quickstart</a></li>
 	</ul>
+</script>
+
+
+
+
+
+<script type="text/javascript">
+    function RegisterCalendarIdSelectionUI(){
+        
+        $("#addCalendarIdButton").click(function() {
+            try {
+                var calendarId = $("#addCalendarIdText").val();
+                var list = getCurrentCalendarListObject();
+                if (!list.includes(calendarId))
+                {
+                    list.push(calendarId);
+                    storeCalendarListObject(list);
+                }
+                $("#addCalendarIdText").val("");
+
+                refreshList();
+            } catch(ex) {
+                alert (ex);
+            }
+        });
+        
+        refreshList();
+
+        function getCurrentCalendarListObject() {
+            try {
+                return JSON.parse($("#node-input-calendarIds").val());
+            } catch(err) {
+                return [];
+            }
+        }
+
+        function storeCalendarListObject(list) {
+            $("#node-input-calendarIds").val(JSON.stringify(list));
+        }
+
+        function refreshList() {
+            $("#calendarIdsList").empty();
+            var calendarIds = getCurrentCalendarListObject();
+            calendarIds.forEach(cId => appendCalendarId(cId));
+        }
+
+        function appendCalendarId(id) {
+            function uuidv4() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            const buttonId = uuidv4();
+            $("#calendarIdsList").append(
+                "<li style=\"display:inline-block; padding:3px; width:100%; margin:0 0 3px 0; border:1px solid lightgray; border-radius:4px;\">" +
+                    "<button id=\"" + buttonId + "\" data-calendarId=\""+id+"\" >X</button> "+id.substr(0, Math.min(30, id.length))+
+                "</li>");
+
+            // register delete-button-callback
+            $("#" + buttonId).click(function(){   
+                var buttonDOM = $(this);
+                var calendarId = buttonDOM.attr("data-calendarId");
+                var hiddenInput = $("#node-input-calendarIds");
+
+                var list = getCurrentCalendarListObject();
+                list = list.filter(id => id != calendarId);
+                storeCalendarListObject(list);
+                refreshList();
+            });
+        }
+    }
 </script>

@@ -34,11 +34,10 @@ module.exports = function(RED) {
     RED.nodes.registerType("list-tasks",listTasksNode);
     
     function listTaskLists(auth, node, numResults, callback) {
-        google.tasks({version: 'v1', auth}).tasklists.list(
-        {
+        const options = {
             maxResults: numResults,
-        }, 
-        (err, res) => {
+        };
+        google.tasks({version: 'v1', auth}).tasklists.list(options, (err, res) => {
             if (err) {
                 utils.handleApiError(node, err);
                 return null;
