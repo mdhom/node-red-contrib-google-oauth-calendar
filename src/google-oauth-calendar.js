@@ -1,5 +1,6 @@
 module.exports = function(RED) {
     const {google} = require('googleapis');
+    const utils = require("../lib/utils.js");
     
     function googleCredentials(config) {
         RED.nodes.createNode(this,config);
@@ -36,7 +37,7 @@ module.exports = function(RED) {
         });
 
         function handleMsg(msg) {
-            prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
+            utils.authenticate(msg, node, googleCredentials, function(oAuth2Client, node) {
                 listUpcomingEvents(
                     oAuth2Client, 
                     node, 
@@ -88,7 +89,7 @@ module.exports = function(RED) {
         });
 
         function handleMsg(msg) {
-            prepareApiRequest(msg, node, googleCredentials, function(oAuth2Client, node) {
+            utils.authenticate(msg, node, googleCredentials, function(oAuth2Client, node) {
                 listEventsOnDays(
                     oAuth2Client, 
                     node, 
@@ -192,38 +193,8 @@ module.exports = function(RED) {
         });
     }
 
-    function prepareApiRequest(msg, node, googleCredentials, callback) {
-        try
-        {
-            if (googleCredentials !== null && googleCredentials !== undefined)
-            {
-                if (googleCredentials.credentials.tokenData !== null && googleCredentials.credentials.tokenData !== undefined)
-                {
-                    const oAuth2Client = new google.auth.OAuth2(
-                        googleCredentials.credentials.clientId, 
-                        googleCredentials.credentials.clientSecret, 
-                        googleCredentials.credentials.redirectUri);
-            
-                    oAuth2Client.setCredentials(JSON.parse(googleCredentials.credentials.tokenData));
-
-                    callback(oAuth2Client, node);
-                }
-                else 
-                {
-                    node.status({fill:"red",shape:"dot",text:"Error: No AccessToken"});
-                }
-            }
-            else
-            {
-                node.status({fill:"red",shape:"dot",text:"Error: No Credentials"});
-            }
-        } catch (err) {
-            node.status({fill:"red",shape:"dot",text:"Exception: " + err});
-        }
-    }
 
     RED.httpAdmin.get('/google-credentials/authUrl/:clientSecret/:clientId/:redirectUri', function(req, res){
-                
         const client_secret = decodeURIComponent(req.params.clientSecret);
         const client_id = decodeURIComponent(req.params.clientId);
         const redirect_uri = decodeURIComponent(req.params.redirectUri);
