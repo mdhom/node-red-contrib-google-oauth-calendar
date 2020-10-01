@@ -7,7 +7,7 @@
         defaults: {
             name: 			    { value: "" },
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
-            calendarIds:         { value: "" },
+            calendarIds:        { value: "" },
             numEvents:		    { value: "10" },
             timespan:           { value: 24 },
             refreshInterval:    { value: 0 }
@@ -17,6 +17,9 @@
         label: function() { return this.name || "List upcoming events"; },
         paletteLabel: "List upcoming events",
         oneditprepare: function(){
+            var node = this;
+            var nodeId = node.id;
+
             $("#node-input-refreshInterval").typedInput({
                 type:"num",
                 types:["num"],
@@ -48,18 +51,19 @@
         <label for="node-input-googleCredentials"><i class="fa fa-key"></i> Credentials</label>
         <input type="text" id="node-input-googleCredentials" placeholder="googleCredentials" />
     </div>
-    
+
     <div class="form-row">
         <label for="node-input-calendarIds"><i class="fa fa-calendar"></i> Calendar IDs</label>
         <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
             <div style="position: absolute; left: 0px; right: 40px;">
-                <input type="text" id="addCalendarIdText" placeholder="Add calendar id" style="width:100%" />
+                <select id="calendarsList" placeholder="Add calendar id" style="width:100%"></select>
             </div>
             <button class="red-ui-button" id="addCalendarIdButton" style="position: absolute; right: 0px; top: 0px;"><i class="fa fa-plus"></i></button>
         </div>
         
         <input type="hidden" id="node-input-calendarIds" placeholder="Calendar IDs" />
     </div>
+
     <div class="form-row">
         <label></label>
         <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
@@ -188,7 +192,7 @@
         <label for="node-input-calendarIds"><i class="fa fa-calendar"></i> Calendar IDs</label>
         <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
             <div style="position: absolute; left: 0px; right: 40px;">
-                <input type="text" id="addCalendarIdText" placeholder="Add calendar id" style="width:100%" />
+                <select id="calendarsList" placeholder="Add calendar id" style="width:100%"></select>
             </div>
             <button class="red-ui-button" id="addCalendarIdButton" style="position: absolute; right: 0px; top: 0px;"><i class="fa fa-plus"></i></button>
         </div>
@@ -255,10 +259,19 @@
 
 <script type="text/javascript">
     function RegisterCalendarIdSelectionUI(){
-        
+        $("#node-input-googleCredentials").change(function() {
+            $.getJSON(`/google-calendar/listCalendars/${$("#node-input-googleCredentials").val()}`,function(data) {
+                console.log(JSON.stringify(data));
+                $("#calendarsList").empty();
+                data.calendars.forEach(calendar => {
+                    $("#calendarsList").append("<option value="+calendar.id+">"+calendar.name+"</option>");
+                });
+            });
+        });
+
         $("#addCalendarIdButton").click(function() {
             try {
-                var calendarId = $("#addCalendarIdText").val();
+                var calendarId = $("#calendarsList").val();
                 var list = getCurrentCalendarListObject();
                 if (!list.includes(calendarId))
                 {

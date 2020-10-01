@@ -16,12 +16,14 @@ module.exports = function(RED) {
             function handleMsg(msg) {
                 try {
                     utils.setRequesting(node);
-                    googleCredentials.authenticate(node, function(oAuth2Client) {
-                        api.listTaskLists(oAuth2Client, node, config.numTasks, function(taskLists) {
+                    api.listTaskLists(googleCredentials.credentials, config.numTasks, function(err, taskLists) {
+                        if (err) {
+                            utils.handleError(node, err);
+                        } else {
                             msg = googleCredentials.createGoogleResult("tasklist", taskLists);
                             node.send(msg);
                             node.status({fill:"green", shape:"dot", text:`Fetched ${taskLists.length} task lists`});
-                        });
+                        }
                     });
                 } catch(err) {
                     utils.handleError(node, 'Exception: ' + err);
