@@ -7,22 +7,13 @@ module.exports = function(RED) {
         var googleCredentials = RED.nodes.getNode(config.googleCredentials);
         var node = this;
 
-        if (config.refreshInterval > 0)
-        {
-            node.context().intervalTimer = setInterval(function () { 
-                handleMsg({});
-            }, config.refreshInterval * 1000);    
-        }
+        utils.startRefreshTimer(node, config, handleMsg({}));
 
-        node.on('input', function(msg) {
-            handleMsg(msg);
-        });
-
-        node.on('close', function() {
-            clearInterval(node.context().intervalTimer);
-        });
+        node.on('input', () => handleMsg({}));
+        node.on('close', () => utils.stopRefreshTimer(node));
 
         function handleMsg(msg) {
+            utils.setRequesting(node);
             googleCredentials.authenticate(node, function(oAuth2Client) {
                 listUpcomingEvents(
                     oAuth2Client, 
@@ -55,21 +46,13 @@ module.exports = function(RED) {
             var calenderIds = [];
         }
         
-        if (config.refreshInterval > 0) {
-            node.context().intervalTimer = setInterval(function () { 
-                handleMsg({});
-            }, config.refreshInterval * 1000);    
-        }
+        utils.startRefreshTimer(node, config, handleMsg({}));
 
-        node.on('input', function(msg) {
-            handleMsg(msg);
-        });
-
-        node.on('close', function() {
-            clearInterval(node.context().intervalTimer);
-        });
+        node.on('input', () => handleMsg({}));
+        node.on('close', () => utils.stopRefreshTimer(node));
 
         function handleMsg(msg) {
+            utils.setRequesting(node);
             googleCredentials.authenticate(node, function(oAuth2Client) {
                 listEventsOnDays(
                     oAuth2Client, 
