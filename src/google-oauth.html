@@ -1,0 +1,141 @@
+<!--- CONFIG NODE --->
+<script type="text/javascript">
+
+    RED.nodes.registerType('googleCredentials',{
+        category: 'config',
+        defaults: {
+			name:   { value: "", required: true },
+		},
+		credentials: {
+			clientId:        { type:"text", required: true },
+            clientSecret:    { type:"text", required: true },
+            redirectUri:     { type:"text", required: true },
+            tokenData:       { type:"text" }
+		},
+        label:          function() { return this.name; },
+        paletteLabel:   "Google Api Credentials",
+        oneditprepare:  function() {
+            var nodeId = this.id;
+            var node = this;
+
+            $("#accessTokenRow").hide();
+
+            $("#authorizeButton").click(function(){     
+                const clientSecret  = $("#node-config-input-clientSecret").val();
+                const clientId      = $("#node-config-input-clientId").val();
+                const redirectUri   = $("#node-config-input-redirectUri").val();
+                $.getJSON('/google-credentials/authUrl/'+clientSecret+'/'+clientId+'/'+redirectUri,function(data) {
+                    window.open(data.authUrl, '_blank');
+                });
+            });
+
+            $("#importButton").click(function(){
+                try
+                {
+                    var json = prompt("Paste the json file content", "JSON Import");
+                    var credentials = JSON.parse(json);
+                    $("#node-config-input-clientSecret").val(credentials.installed.client_secret);
+                    $("#node-config-input-clientId").val(credentials.installed.client_id);
+                    $("#node-config-input-redirectUri").val(credentials.installed.redirect_uris[0]);
+                }
+                catch(err)
+                {
+                    alert("An error occured: " + err);
+                }
+            });
+
+            $("#enterCodeButton").click(function(){
+                var code = $("#node-input-code").val();
+                if (code === null || code === undefined || code.length < 10)
+                {
+                    alert("Please enter a valid code");
+                    return;
+                }
+
+                const clientSecret  = $("#node-config-input-clientSecret").val();
+                const clientId      = $("#node-config-input-clientId").val();
+                const redirectUri   = $("#node-config-input-redirectUri").val();
+                $.getJSON('/google-credentials/token/' + encodeURIComponent(code) + "/" + nodeId+'/'+clientSecret+'/'+clientId+'/'+redirectUri,function(data) {
+                    $("#node-config-input-tokenData").val(JSON.stringify(data));
+                    $("#node-config-input-accessToken").val(data.access_token.substr(0,10));
+                    $("#node-config-input-refreshToken").val(data.refresh_token.substr(0,10));
+                    $("#node-config-input-tokenScope").val(data.scope);
+                    $("#node-config-input-tokenType").val(data.token_type);
+                    $("#node-config-input-tokenExpiryDate").val(data.expiry_date);
+                    $("#accessTokenRow").show();
+                });
+            });
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="googleCredentials">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <h2>Step 1: Insert client information</h2>
+        In this step, a new browser window will open. Grant all requested scopes and copy<br /> the code given to you by google
+        at the end of this process.<br />
+        <button id="importButton" style="text-align:center;">Import credentials.json</button>
+    </div>
+    <div class="form-row">
+        <label for="node-input-clientId"><i class="fa fa-tag"></i> clientId</label>
+        <input type="password" id="node-config-input-clientId" placeholder="clientId" />
+	</div>
+    <div class="form-row">
+        <label for="node-input-clientSecret"><i class="fa fa-tag"></i> clientSecret</label>
+        <input type="password" id="node-config-input-clientSecret" placeholder="clientSecret" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-redirectUri"><i class="fa fa-tag"></i> redirectUri</label>
+        <input type="text" id="node-config-input-redirectUri" placeholder="redirectUri" />
+    </div>
+    <div class="form-row">
+        <h2>Step 2: Get authentication code</h2>
+        In this step, a new browser window will open. Grant all requested scopes and copy<br /> the code given to you by google
+        at the end of this process.<br />
+        <button id="authorizeButton" style="text-align:center;">Open Google Authentication</button>
+    </div>
+    <div class="form-row">
+        <h2>Step 3: Enter authentication code and fetch access token</h2>
+        Now enter the code you previously received from google in step 1:<br />
+    </div>
+    <div class="form-row">
+        <input type="text" id="node-input-code" placeholder="Code" />
+        <button id="enterCodeButton" style="text-align:center;">Enter Code</button>
+    </div>
+    <div id="accessTokenRow">
+        <input type="hidden" id="node-config-input-tokenData" placeholder="tokenData" disabled="disabled" />
+
+        <div class="form-row" >
+            <label for="node-input-accessToken"><i class="fa fa-tag"></i> accessToken</label>
+            <input type="text" id="node-config-input-accessToken" placeholder="accessToken" disabled="disabled" />
+        </div>
+        <div class="form-row">
+            <label for="node-input-refreshToken"><i class="fa fa-tag"></i> refreshToken</label>
+            <input type="text" id="node-config-input-refreshToken" placeholder="refreshToken" disabled="disabled" />
+        </div>
+        <div class="form-row">
+            <label for="node-input-tokenScope"><i class="fa fa-tag"></i> tokenScope</label>
+            <input type="text" id="node-config-input-tokenScope" placeholder="tokenScope" disabled="disabled" />
+        </div>
+        <div class="form-row">
+            <label for="node-input-tokenType"><i class="fa fa-tag"></i> tokenType</label>
+            <input type="text" id="node-config-input-tokenType" placeholder="tokenType" disabled="disabled" />
+        </div>
+        <div class="form-row">
+            <label for="node-input-tokenExpiryDate"><i class="fa fa-tag"></i> tokenExpiryDate</label>
+            <input type="text" id="node-config-input-tokenExpiryDate" placeholder="tokenExpiryDate" disabled="disabled" />
+        </div>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="googleCredentials">
+    <p>
+        Stores access data for your Google API. 
+        Go to <a href="https://console.developers.google.com/" target=_blank title="Google Developer Console">Google Developer Console</a>
+        and create OAuth-Client data (id and key). Important: select "TV and other" client type.
+	</p>
+</script>
