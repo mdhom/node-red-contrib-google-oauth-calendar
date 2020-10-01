@@ -1,9 +1,40 @@
 module.exports = function(RED) {
     const {google} = require('googleapis');
-    
+
     function googleCredentials(config) {
         RED.nodes.createNode(this,config);
         this.name   = config.name;
+
+        this.authenticate = function(node, callback) {
+            try
+            {
+                if (this.credentials.tokenData !== null && this.credentials.tokenData !== undefined)
+                {
+                    const oAuth2Client = new google.auth.OAuth2(
+                        this.credentials.clientId, 
+                        this.credentials.clientSecret, 
+                        this.credentials.redirectUri);
+            
+                    oAuth2Client.setCredentials(JSON.parse(this.credentials.tokenData));
+    
+                    callback(oAuth2Client);
+                }
+                else 
+                {
+                    node.status({fill:"red",shape:"dot",text:"Error: No AccessToken"});
+                }
+            } catch (err) {
+                node.status({fill:"red",shape:"dot",text:"Exception: " + err});
+            }
+        }
+
+        this.createGoogleResult = function(resultType, payload) {
+            return {
+                resultType:             resultType,
+                payload:                payload,
+                googleCredentialsName:  this.name
+            }
+        }
     }
     
     RED.nodes.registerType("googleCredentials", googleCredentials, {
@@ -20,7 +51,10 @@ module.exports = function(RED) {
         const client_id = decodeURIComponent(req.params.clientId);
         const redirect_uri = decodeURIComponent(req.params.redirectUri);
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
-        const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
+        const SCOPES = [
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/tasks.readonly'
+        ];
 
         const authUrl = oAuth2Client.generateAuthUrl({
             access_type: 'offline',

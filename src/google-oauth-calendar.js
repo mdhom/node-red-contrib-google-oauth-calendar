@@ -23,7 +23,7 @@ module.exports = function(RED) {
         });
 
         function handleMsg(msg) {
-            utils.authenticate(msg, node, googleCredentials, function(oAuth2Client, node) {
+            googleCredentials.authenticate(node, function(oAuth2Client) {
                 listUpcomingEvents(
                     oAuth2Client, 
                     node, 
@@ -31,10 +31,9 @@ module.exports = function(RED) {
                     config.timespan > 0 ? config.timespan : undefined, 
                     function(err, result) {
                     if (err) {
-                        node.status({fill:"red",shape:"dot",text:"Error: " + err});
+                        utils.handleApiError(node, err);
                     } else {
-                        msg.googleCredentialsName = googleCredentials.name;
-                        msg.payload = result.data.items;
+                        msg = googleCredentials.createGoogleResult("eventslist", result.data.items);
                         node.send(msg);
                         node.status({fill:"green",shape:"dot",text:"Fetched " + result.data.items.length + " events"});
                     }
@@ -42,10 +41,7 @@ module.exports = function(RED) {
             });
         }
     }
-
     RED.nodes.registerType("listUpcomingEvents",listUpcomingEventsNode);
-
-    
     
     function listEventsOnDaysNode(config) {
         RED.nodes.createNode(this,config);
@@ -55,12 +51,11 @@ module.exports = function(RED) {
         try {
             var calenderIds = config.calendarIds == "" ? [] : JSON.parse(config.calendarIds);
         } catch (err) {
-            node.error("Fetching calenderIds: " + err);
+            utils.handleError(node, 'Fetching calenderIds: ' + err);
             var calenderIds = [];
         }
         
-        if (config.refreshInterval > 0)
-        {
+        if (config.refreshInterval > 0) {
             node.context().intervalTimer = setInterval(function () { 
                 handleMsg({});
             }, config.refreshInterval * 1000);    
@@ -75,7 +70,7 @@ module.exports = function(RED) {
         });
 
         function handleMsg(msg) {
-            utils.authenticate(msg, node, googleCredentials, function(oAuth2Client, node) {
+            googleCredentials.authenticate(node, function(oAuth2Client) {
                 listEventsOnDays(
                     oAuth2Client, 
                     node, 
@@ -85,10 +80,9 @@ module.exports = function(RED) {
                     config.daysOffsetEnd, 
                     function(err, result) {
                     if (err) {
-                        node.status({fill:"red",shape:"dot",text:"Error: " + err});
+                        utils.handleError(node, err);
                     } else {
-                        msg.googleCredentialsName = googleCredentials.name;
-                        msg.payload = result;
+                        msg = googleCredentials.createGoogleResult("eventslist", result);
                         node.send(msg);
                         node.status({fill:"green",shape:"dot",text:"Fetched " + result.length + " events"});
                     }
@@ -96,7 +90,6 @@ module.exports = function(RED) {
             });
         }
     }
-
     RED.nodes.registerType("listEventsOnDays",listEventsOnDaysNode);
 
     /**
@@ -157,12 +150,12 @@ module.exports = function(RED) {
                 try {
                     var allItems = [].concat.apply([], result);
                     callback("", allItems);
-                } catch(ex) {
-                    node.error("Result Exception: " + ex);
+                } catch(err) {
+                    utils.handleError(node, 'Result exception: '+err);
                 }
             });
         } catch(err) {
-            node.error("listEvents: Exception: " + err);
+            utils.handleError(node, 'Exception: '+err);
         }
     }
 

@@ -6,7 +6,8 @@
     "node-red": {
         "nodes": {
             "google-oauth": "src/google-oauth.js",
-            "google-oauth-calendar": "src/google-oauth-calendar.js"
+            "google-oauth-calendar": "src/google-oauth-calendar.js",
+            "google-oauth-tasks": "src/google-oauth-tasks.js"
         }
     },
     "dependencies": {
