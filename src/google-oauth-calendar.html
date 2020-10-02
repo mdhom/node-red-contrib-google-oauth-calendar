@@ -127,8 +127,6 @@
 	</ul>
 </script>
 
-
-
 <!--- LIST EVENTS ON DAYS NODE --->
 <script type="text/javascript">
     RED.nodes.registerType('listEventsOnDays',{
@@ -253,84 +251,23 @@
 	</ul>
 </script>
 
-
-
-
-
+<!--- LIST UI --->
 <script type="text/javascript">
     function RegisterCalendarIdSelectionUI(){
+        var addButton = $("#addCalendarIdButton");
+        var dropDown = $("#calendarsList");
+        var hiddenInput = $("#node-input-calendarIds");
+        var list = $("#calendarIdsList");
+
         $("#node-input-googleCredentials").change(function() {
             $.getJSON(`/google-calendar/listCalendars/${$("#node-input-googleCredentials").val()}`,function(data) {
-                console.log(JSON.stringify(data));
-                $("#calendarsList").empty();
+                dropDown.empty();
                 data.calendars.forEach(calendar => {
-                    $("#calendarsList").append("<option value="+calendar.id+">"+calendar.name+"</option>");
+                    dropDown.append("<option value="+calendar.id+">"+calendar.name+"</option>");
                 });
             });
         });
 
-        $("#addCalendarIdButton").click(function() {
-            try {
-                var calendarId = $("#calendarsList").val();
-                var list = getCurrentCalendarListObject();
-                if (!list.includes(calendarId))
-                {
-                    list.push(calendarId);
-                    storeCalendarListObject(list);
-                }
-                $("#addCalendarIdText").val("");
-
-                refreshList();
-            } catch(ex) {
-                alert (ex);
-            }
-        });
-        
-        refreshList();
-
-        function getCurrentCalendarListObject() {
-            try {
-                return JSON.parse($("#node-input-calendarIds").val());
-            } catch(err) {
-                return [];
-            }
-        }
-
-        function storeCalendarListObject(list) {
-            $("#node-input-calendarIds").val(JSON.stringify(list));
-        }
-
-        function refreshList() {
-            $("#calendarIdsList").empty();
-            var calendarIds = getCurrentCalendarListObject();
-            calendarIds.forEach(cId => appendCalendarId(cId));
-        }
-
-        function appendCalendarId(id) {
-            function uuidv4() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
-            }
-
-            const buttonId = uuidv4();
-            $("#calendarIdsList").append(
-                "<li style=\"display:inline-block; padding:3px; width:100%; margin:0 0 3px 0; border:1px solid lightgray; border-radius:4px;\">" +
-                    "<button id=\"" + buttonId + "\" data-calendarId=\""+id+"\" >X</button> "+id.substr(0, Math.min(30, id.length))+
-                "</li>");
-
-            // register delete-button-callback
-            $("#" + buttonId).click(function(){   
-                var buttonDOM = $(this);
-                var calendarId = buttonDOM.attr("data-calendarId");
-                var hiddenInput = $("#node-input-calendarIds");
-
-                var list = getCurrentCalendarListObject();
-                list = list.filter(id => id != calendarId);
-                storeCalendarListObject(list);
-                refreshList();
-            });
-        }
+        RED.uiTools.registerListSelectionUI(addButton, dropDown, hiddenInput, list);
     }
 </script>

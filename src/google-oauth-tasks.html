@@ -7,6 +7,7 @@
         defaults: {
             name: 			    { value: "" },
 			googleCredentials: 	{ value: "", type: "googleCredentials" },
+            tasklists:          { value: "" },
             numTasks:		    { value: 10 },
             refreshInterval:    { value: 0 }
         },
@@ -25,6 +26,8 @@
                 types:["num"],
                 typeField: "#node-input-numTasks-type"
             });
+
+            RegisterTaskListSelectionUI();
         }
     });
 </script>
@@ -38,6 +41,27 @@
     <div class="form-row">
         <label for="node-input-googleCredentials"><i class="fa fa-key"></i> Credentials</label>
         <input type="text" id="node-input-googleCredentials" placeholder="googleCredentials" />
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-tasklists"><i class="fa fa-calendar"></i> TaskLists</label>
+        <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
+            <div style="position: absolute; left: 0px; right: 40px;">
+                <select id="taskListsSelection" placeholder="Add task list" style="width:100%"></select>
+            </div>
+            <button class="red-ui-button" id="addButton" style="position: absolute; right: 0px; top: 0px;"><i class="fa fa-plus"></i></button>
+        </div>
+        
+        <input type="hidden" id="node-input-tasklists" placeholder="TaskLists" />
+    </div>
+
+    <div class="form-row">
+        <label></label>
+        <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
+            <ul id="selectedTaskListsList" style="list-style-type: none; margin:0px; padding:0px; width:322.3px;">
+    
+            </ul>
+        </div>
     </div>
 	
     <div class="form-row">
@@ -86,4 +110,25 @@
         <li><a href="https://googleapis.dev/nodejs/googleapis/latest/calendar/index.html" target=_blank>Google Calendar API Node.js Reference</a></li>
         <li><a href="https://developers.google.com/calendar/quickstart/nodejs" target=_blank>Google Calendar API Node.js Quickstart</a></li>
 	</ul>
+</script>
+
+<!--- LIST UI --->
+<script type="text/javascript">
+    function RegisterTaskListSelectionUI(){
+        var addButton = $("#addButton");
+        var dropDown = $("#taskListsSelection");
+        var hiddenInput = $("#node-input-tasklists");
+        var list = $("#selectedTaskListsList");
+
+        $("#node-input-googleCredentials").change(function(){
+            dropDown.empty();
+            $.getJSON(`/google-tasks/listTaskLists/${$("#node-input-googleCredentials").val()}/100`,function(data) {
+                data.taskLists.forEach(taskList => {
+                    dropDown.append("<option value="+taskList.id+">"+taskList.name+"</option>");
+                });
+            });
+        });
+
+        RED.uiTools.registerListSelectionUI(addButton, dropDown, hiddenInput, list);
+    }
 </script>

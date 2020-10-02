@@ -1,3 +1,92 @@
+<script type="text/javascript">
+    RED.sidebar.addTab({
+        id: "googleTab",
+        label: "Google",
+        name: "googleTab",
+        content: "<div class=\"nr-db-sb\">TODO: Add overview of all devices</div>",
+        closeable: true,
+        pinned: true,
+        iconClass: "fa fa-cloud",
+        disableOnEdit: true
+    });
+
+    if (RED.uiTools === undefined) {
+        RED.uiTools = {
+
+            registerListSelectionUI: function(addButton, dropDown, hiddenInput, list) {
+
+                addButton.click(function() {
+                    try {
+                        var itemId = dropDown.val();
+                        var selectedOption = dropDown.children("option:selected");
+                        var itemName = selectedOption.text();
+
+                        var list = getCurrentListObject();
+                        if (!list.some(item => item.id == itemId))
+                        {
+                            list.push({
+                                id: itemId,
+                                name: itemName
+                            });
+                            storeListObject(list);
+                        }
+
+                        refreshList();
+                    } catch(ex) {
+                        alert (ex);
+                    }
+                });
+                
+                refreshList();
+
+                function getCurrentListObject() {
+                    try {
+                        return JSON.parse(hiddenInput.val());
+                    } catch(err) {
+                        return [];
+                    }
+                }
+
+                function storeListObject(list) {
+                    hiddenInput.val(JSON.stringify(list));
+                }
+
+                function refreshList() {
+                    list.empty();
+                    var listObject = getCurrentListObject();
+                    listObject.forEach(item => appendToList(item));
+                }
+
+                function appendToList(item) {
+                    function uuidv4() {
+                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                            return v.toString(16);
+                        });
+                    }
+
+                    const buttonId = uuidv4();
+                    list.append(
+                        "<li style=\"display:inline-block; padding:3px; width:100%; margin:0 0 3px 0; border:1px solid lightgray; border-radius:4px;\">" +
+                            "<button id=\"" + buttonId + "\" data-id=\""+item.id+"\" >X</button> "+item.name.substr(0, Math.min(30, item.name.length))+
+                        "</li>");
+
+                    // register delete-button-callback
+                    $("#" + buttonId).click(function(){   
+                        var buttonDOM = $(this);
+                        var itemId = buttonDOM.attr("data-id");
+
+                        var list = getCurrentListObject();
+                        list = list.filter(taskList => taskList.id != itemId);
+                        storeListObject(list);
+                        refreshList();
+                    });
+                }
+            }
+        }
+    }
+</script>
+
 <!--- CONFIG NODE --->
 <script type="text/javascript">
 

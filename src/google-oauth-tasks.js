@@ -34,5 +34,29 @@ module.exports = function(RED) {
         }
     }
     RED.nodes.registerType("list-tasks",listTasksNode);
-    
+
+    RED.httpAdmin.get('/google-tasks/listTaskLists/:credentialsNodeId/:maxNumResults', function(req, res){
+        const credentialsNode = RED.nodes.getNode(req.params.credentialsNodeId);
+        try {
+            api.listTaskLists(credentialsNode.credentials, req.params.maxNumResults, function (err, result) {
+                if (err) {
+                    res.send(500);
+                    credentialsNode.error(err);
+                } else {
+                    const msgOut = { taskLists: [] };
+                    result.forEach(taskList => {
+                        msgOut.taskLists.push({
+                            id: taskList.id,
+                            name: taskList.title,
+                            updated: taskList.updated
+                        });
+                    });
+                    res.end(JSON.stringify(msgOut));
+                }
+            });
+        } catch (err) {
+            res.send(500);
+            credentialsNode.error(err);
+        }
+    });
 }
