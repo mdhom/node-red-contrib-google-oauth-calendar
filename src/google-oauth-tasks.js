@@ -8,6 +8,13 @@ module.exports = function(RED) {
             var googleCredentials = RED.nodes.getNode(config.googleCredentials);
             var node = this;
 
+            var taskLists = [];
+            try {
+                taskLists = config.tasklists == "" ? [] : JSON.parse(config.tasklists);
+            } catch (err) {
+                utils.handleError(node, 'Fetching tasklists: ' + err);
+            }
+
             utils.startRefreshTimer(node, config, handleMsg({}));
 
             node.on('input', () => handleMsg({}));
@@ -16,13 +23,14 @@ module.exports = function(RED) {
             function handleMsg(msg) {
                 try {
                     utils.setRequesting(node);
-                    api.listTaskLists(googleCredentials.credentials, config.numTasks, function(err, taskLists) {
+                    
+                    api.listTasks(googleCredentials.credentials, taskLists[0], function(err, taskList) {
                         if (err) {
                             utils.handleError(node, err);
                         } else {
-                            msg = googleCredentials.createGoogleResult("tasklist", taskLists);
+                            msg = googleCredentials.createGoogleResult("tasklist", taskList);
                             node.send(msg);
-                            node.status({fill:"green", shape:"dot", text:`Fetched ${taskLists.length} task lists`});
+                            node.status({fill:"green", shape:"dot", text:`Fetched ${taskList.length} tasks`});
                         }
                     });
                 } catch(err) {
