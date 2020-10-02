@@ -24,7 +24,7 @@ module.exports = function(RED) {
                 try {
                     utils.setRequesting(node);
                     
-                    api.listTasks(googleCredentials.credentials, taskLists[0], function(err, taskList) {
+                    api.listTasks(googleCredentials.credentials, taskLists, function(err, taskList) {
                         if (err) {
                             utils.handleError(node, err);
                         } else {
