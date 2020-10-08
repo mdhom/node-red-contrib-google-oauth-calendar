@@ -15,7 +15,7 @@ module.exports = function(RED) {
                 utils.handleError(node, 'Fetching tasklists: ' + err);
             }
 
-            utils.startRefreshTimer(node, config, handleMsg({}));
+            utils.startRefreshTimer(node, config, () => handleMsg({}));
 
             node.on('input', () => handleMsg({}));
             node.on('close', () => utils.stopRefreshTimer(node));
