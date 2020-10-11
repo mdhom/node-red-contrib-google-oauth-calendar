@@ -4,14 +4,21 @@
 This package contains nodes for accessing googles calendar API (using googleapis npm package).
 
 # Setup Google Calendar API connection
- 1. Add one of the nodes you want to use to your flow.
- 2. Double-click the new node so that configuration page opens.
- 3. In the "Credentials"-combo box, select "Add new ... config" and click on the pen icon.
- 4. After giving a readable name, you are asked to insert your api client information. To retrieve it, go to [Google Developer Console](https://console.developers.google.com/) select (or create) your project. Then go to "Credentials" and add a new OAuth Client-ID. After creation you can see your Client-ID and Client-Key as well as a button to download these infos as a json file.
- 5. Open the downloaded json file, copy the full content, press the "Import credentials.json" button and paste the copied content in the opened dialog. You should now see data in the "clientId", "clientSecret" and the "redirectUri" textboxes.
- 6. Now press the "Open Google Authentication" button and a new window of your browser will open. Follow the instructions and grant access to your project.
- 7. At the end of the authentication process, a google generated code will appear, which you must copy and paste into the code-text-box within the node configuration.
- 8. Press the "Enter Code"-button and you should see valid key data appear below.
+1. Add one of the nodes you want to use to your flow.
+2. Double-click the new node so that configuration page opens.
+3. In the "Credentials"-combo box, select "Add new ... config" and click on the pen icon.
+4. After giving a readable name, you are asked to insert your api client information. To retrieve it, go to [Google Developer Console](https://console.developers.google.com/) select (or create) your project.
+5. Then go to "Credentials" and add a new OAuth Client-ID.
+![img](docs/img/credentials-add-oauthclient.png)
+6. Select __TVs and Limited Input devices__
+![img](docs/img/credentials-select-tv.png)
+7. After creation you can see your Client-ID and Client-Key. You can copy those or hit OK and download them on the next screen.
+![img](docs/img/credentials-copy-credentials.png)
+![img](docs/img/credentials-download-credentials.png)
+8. Open the downloaded json file, copy the full content, press the "Import credentials.json" button and paste the copied content in the opened dialog. You should now see data in the "clientId", "clientSecret" and the "redirectUri" textboxes.
+9. Now press the "Open Google Authentication" button and a new window of your browser will open. Follow the instructions and grant access to your project.
+10. At the end of the authentication process, a google generated code will appear, which you must copy and paste into the code-text-box within the node configuration.
+11. Press the "Enter Code"-button and you should see valid key data appear below.
 
 ## List upcoming events node
 This node lists the next n upcoming events in the given calendar, starting from now.
